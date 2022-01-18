@@ -56,8 +56,6 @@ def load_ipynb(filename):
     a.close()
     return dict
 
-# print(load_ipynb("samples/minimal.ipynb"))
-# print(load_ipynb("samples/hello-world.ipynb"))
 
 def save_ipynb(ipynb, filename):
     r"""
@@ -83,9 +81,6 @@ def save_ipynb(ipynb, filename):
     a.write(json.dumps(ipynb))
     a.close()
 
-# ipynb = load_ipynb("samples/minimal.ipynb")
-# print(save_ipynb(ipynb, "samples/minimal.ipynb"))
-
 
 def get_format_version(ipynb):
     r"""
@@ -102,9 +97,6 @@ def get_format_version(ipynb):
         '4.5'
     """
     return f"{ipynb['nbformat']}.{ipynb['nbformat_minor']}"
-
-# ipynb = load_ipynb("samples/minimal.ipynb")
-# print(get_format_version(ipynb))
 
 
 def get_metadata(ipynb):
@@ -129,10 +121,6 @@ def get_metadata(ipynb):
                            'version': '3.9.7'}}
     """
     return ipynb['metadata']
-
-# ipynb = load_ipynb("samples/metadata.ipynb")
-# metadata = get_metadata(ipynb)
-# pprint.pprint(metadata)
 
 
 def get_cells(ipynb):
@@ -167,10 +155,6 @@ def get_cells(ipynb):
           'source': ['Goodbye! 👋']}]
     """
     return ipynb['cells']
-
-# ipynb = load_ipynb("samples/hello-world.ipynb")
-# cells = get_cells(ipynb)
-# pprint.pprint(cells)
 
 
 def to_percent(ipynb):
@@ -210,10 +194,6 @@ def to_percent(ipynb):
                 res = res + line
             res = res +'\n\n'
     return res
-
-#ipynb = load_ipynb("samples/hello-world.ipynb")
-#print(ipynb['cells'][0]['source'])
-#print(to_percent(ipynb))
 
 
 def starboard_html(code):
@@ -299,8 +279,6 @@ def to_starboard(ipynb, html=False):
                 res = res +'\n\n'
         return res
 
-#ipynb = load_ipynb("samples/hello-world.ipynb")
-#print(to_starboard(ipynb))
 
 # Outputs
 # ------------------------------------------------------------------------------
@@ -388,9 +366,6 @@ def get_stream(ipynb, stdout=True, stderr=False):
                     res += ipynb['cells'][i]['outputs'][0]['text'][j]
     return res
 
-#ipynb = load_ipynb("samples/streams.ipynb")
-#print(get_stream(ipynb, stdout=True, stderr=True))
-
 
 def get_exceptions(ipynb):
     r"""
@@ -412,21 +387,14 @@ def get_exceptions(ipynb):
         Warning('🌧️  light rain')
     """
     list = []
-    for i in range(len(ipynb['cells'])):
-        if 'outputs' in ipynb['cells'][i]:
-            if ipynb['cells'][i]['outputs'][0]['output_type'] == 'error':
-                list.append(f"{ipynb['cells'][i]['outputs'][0]['ename']}({ipynb['cells'][i]['outputs'][0]['evalue']})")
+    for cell in get_cells(ipynb) :
+        if cell['cell_type'] == 'code':
+            try :
+                exec(cell['source'][0])
+            except Exception as exception :
+                list.append(exception)
     return list
-        
 
-#ipynb = load_ipynb("samples/errors.ipynb")
-#print(ipynb)
-#ipynb2 = load_ipynb("samples/hello-world.ipynb")
-#print(ipynb2)
-ipynb = load_ipynb("samples/errors.ipynb")
-errors = get_exceptions(ipynb)
-for error in errors:
-    print(repr(error))
 
 def get_images(ipynb):
     r"""
@@ -449,4 +417,13 @@ def get_images(ipynb):
                 ...,
                 [ 14,  13,  19]]], dtype=uint8)
     """
-    pass
+    list = []
+    for cell in get_cells(ipynb) :
+        if cell['outputs'] != [] :
+            if isinstance(cell['outputs'][0]['data'],dict) :
+                for key, item in cell['outputs'][0]['data'].items() :
+                    if 'image' in key :
+                        decoded = base64.b64decode(item)
+                        image = PIL.Image.open(io.BytesIO(decoded))
+                        list.append(np.asarray(image))
+    return  list

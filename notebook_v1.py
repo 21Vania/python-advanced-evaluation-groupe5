@@ -69,6 +69,7 @@ class MarkdownCell:
         self.id = ipynb['id']
         self.source = ipynb['source']
 
+from notebook_v0 import get_format_version, get_cells
 
 class Notebook:
     r"""A Jupyter Notebook.
@@ -100,7 +101,13 @@ class Notebook:
     """
 
     def __init__(self, ipynb):
-        pass
+        self.version = get_format_version(ipynb)
+        self.cells = []
+        for i in get_cells(ipynb):
+            if i['cell_type'] == 'code':
+                self.cells.append(CodeCell(ipynb))
+            else:
+                self.cells.append(MarkdownCell(ipynb))
 
     @staticmethod
     def from_file(filename):

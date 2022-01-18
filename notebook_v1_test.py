@@ -4,6 +4,8 @@
 import unittest
 
 from notebook_v1 import *
+import notebook_v0 as toolbox
+from notebook_v0_test import strip_last_lines
 
 class Question9(unittest.TestCase):
     def test_build_code_cell(self):

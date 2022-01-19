@@ -181,19 +181,20 @@ def to_percent(ipynb):
         ...     with open(notebook_file.with_suffix(".py"), "w", encoding="utf-8") as output:
         ...         print(percent_code, file=output)
     """
-    res = ''
-    for cells in ipynb['cells'] :
-        if cells["cell_type"] == 'markdown' :
-            res = res + '# %% [markdown] \n'
-            for line in cells['source'] :
-                res = res + '# ' + line
-            res = res + '\n\n'
+    str = ''
+    for cell in ipynb['cells'] :
+        if cell["cell_type"] == 'markdown' :
+            str += '# %% [markdown]\n'
+            for line in cell['source'] :
+                str += '# ' + line
+            str += '\n\n'
         else :
-            res = res + '# %%\n'
-            for line in cells['source'] :
-                res = res + line
-            res = res +'\n\n'
-    return res
+            str += '# %%\n'
+            for line in cell['source'] :
+                str += line
+            str += '\n\n'
+    str = str[:-1] # On enlève le dernier saut de ligne pour respecter la mise en forme
+    return str
 
 
 def starboard_html(code):
@@ -251,33 +252,21 @@ def to_starboard(ipynb, html=False):
         ...         print(starboard_html, file=output)
     """
     if html:
-        res = ''
-        for cells in ipynb['cells'] :
-            if cells["cell_type"] == 'markdown' :
-                res = res + '# %% [markdown] \n'
-                for line in cells['source'] :
-                    res = res + line
-                res = res + '\n\n'
-            else :
-                res = res + '# %% [python] \n'
-                for line in cells['source'] :
-                    res = res + line
-                res = res +'\n\n'
-        return starboard_html(res)
+        return starboard_html(ipynb)
     else:
-        res = ''
+        str = ''
         for cells in ipynb['cells'] :
             if cells["cell_type"] == 'markdown' :
-                res = res + '# %% [markdown] \n'
+                str += '# %% [markdown] \n'
                 for line in cells['source'] :
-                    res = res + line
-                res = res + '\n\n'
+                    str += line
+                str += '\n\n'
             else :
-                res = res + '# %% [python] \n'
+                str += '# %% [python] \n'
                 for line in cells['source'] :
-                    res = res + line
-                res = res +'\n\n'
-        return res
+                    str += line
+                str +='\n\n'
+        return str
 
 
 # Outputs

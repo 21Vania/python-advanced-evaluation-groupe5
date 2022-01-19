@@ -172,13 +172,13 @@ class PyPercentSerializer:
                 str += "# %% [markdown] \n"
                 for line in cell.source:
                     str += "# " + line
-                str += "\n<BLANKLINE> \n"
+                str += "\n"
             else:
                 str += "# %% \n"
                 for line in cell.source:
                     str += line
-                str += "\n<BLANKLINE> \n"
-        return str[:-14] # On retire le dernier <BLANKLINE>
+                str += "\n"
+        return str[:-1] # On retire le dernier saut de ligne
 
     def to_file(self, filename):
         r"""Serializes the notebook to a file
@@ -325,3 +325,7 @@ class Outliner:
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
         return str[:-1] # On retire le dernier saut de ligne
+
+nb = Notebook.from_file("samples/hello-world.ipynb")
+ppp = PyPercentSerializer(nb)
+print(ppp.to_py_percent())

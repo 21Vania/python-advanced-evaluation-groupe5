@@ -304,17 +304,17 @@ class Outliner:
         nb = Serializer(self.notebook).serialize()
         str = 'Jupyter Notebook v' + f"{self.notebook.version}" + '\n'
         for cell in nb['cells']:
-            if cell['cell_type'] == 'Markdown':
+            if cell['cell_type'] == 'markdown':
                 str += '└─▶ Markdown cell #' + cell['id'] + '\n'
                 if len(cell['source']) >= 2:
-                    str += '    ┌  ' + cell['source'][0] + '\n'
+                    str += '    ┌  ' + cell['source'][0] 
                     for line in cell['source'][1:-1]:
-                        str += '    │  ' + line + '\n'
+                        str += '    │  ' + line 
                     str += '    └  ' + cell['source'][-1] + '\n'
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
             else:
-                str += '└─▶ Code cell #' + cell['id'] + f"({cell['execution_count']})" '\n'
+                str += '└─▶ Code cell #' + cell['id'] + f" ({cell['execution_count']})" '\n'
                 if len(cell['source']) >= 2:
                     str += '    ┌  ' + cell['source'][0] 
                     for line in cell['source'][1:-1]:
@@ -323,8 +323,3 @@ class Outliner:
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
         return str[:-1] # On retire le dernier saut de ligne
-
-nb = Notebook.from_file("samples/hello-world.ipynb")
-#o = Outliner(nb)
-#print(o.outline())
-print(Serializer(nb).serialize())

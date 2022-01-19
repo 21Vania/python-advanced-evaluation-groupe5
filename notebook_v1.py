@@ -308,22 +308,23 @@ class Outliner:
                 str += '└─▶ Markdown cell #' + cell['id'] + '\n'
                 if len(cell['source']) >= 2:
                     str += '    ┌  ' + cell['source'][0] + '\n'
-                    for line in cell['source'][1:]:
+                    for line in cell['source'][1:-1]:
                         str += '    │  ' + line + '\n'
                     str += '    └  ' + cell['source'][-1] + '\n'
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
             else:
-                str += '└─▶ Code cell #' + cell['id'] + '\n'
+                str += '└─▶ Code cell #' + cell['id'] + f"({cell['execution_count']})" '\n'
                 if len(cell['source']) >= 2:
-                    str += '    ┌  ' + cell['source'][0] + '\n'
-                    for line in cell['source'][1:-2]:
-                        str += '    │  ' + line + '\n'
+                    str += '    ┌  ' + cell['source'][0] 
+                    for line in cell['source'][1:-1]:
+                        str += '    │  ' + line 
                     str += '    └  ' + cell['source'][-1] + '\n'
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
         return str[:-1] # On retire le dernier saut de ligne
 
 nb = Notebook.from_file("samples/hello-world.ipynb")
-o = Outliner(nb)
-print(o.outline())
+#o = Outliner(nb)
+#print(o.outline())
+print(Serializer(nb).serialize())

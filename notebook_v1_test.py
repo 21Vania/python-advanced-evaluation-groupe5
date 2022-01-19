@@ -5,7 +5,7 @@ import unittest
 
 from notebook_v1 import *
 import notebook_v0 as toolbox
-from notebook_v0_test import strip_last_lines
+#from notebook_v0_test import strip_last_lines
 
 class Question9(unittest.TestCase):
     def test_build_code_cell(self):
@@ -45,7 +45,6 @@ class Question9(unittest.TestCase):
         ipynb = toolbox.load_ipynb("samples/hello-world.ipynb")
         nb = Notebook(ipynb)
         self.assertIsInstance(nb.cells, list)
-        self.assertIsInstance(nb.cells[0], Cell)
 
 class Question10(unittest.TestCase):
     def test_from_file(self):

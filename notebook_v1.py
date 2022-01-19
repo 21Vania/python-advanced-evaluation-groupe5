@@ -38,6 +38,7 @@ class CodeCell:
         self.id = ipynb['id']
         self.source = ipynb['source']
         self.execution_count = ipynb['execution_count']
+        self.type = ipynb['cell_type']
 
 
 class MarkdownCell:
@@ -70,6 +71,7 @@ class MarkdownCell:
     def __init__(self, ipynb):
         self.id = ipynb['id']
         self.source = ipynb['source']
+        self.type = ipynb['cell_type']
 
 from notebook_v0 import get_format_version, get_cells, load_ipynb
 

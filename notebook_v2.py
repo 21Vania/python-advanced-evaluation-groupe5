@@ -5,6 +5,13 @@
 an object-oriented version of the notebook toolbox
 """
 
+import json
+from notebook_v0 import get_format_version, get_cells
+from notebook_v1 import CodeCell as CodeCellv1
+from notebook_v1 import MarkdownCell as MarkdownCellv1
+from notebook_v1 import Outliner
+from notebook_v1 import PyPercentSerializer
+
 class CodeCell:
     r"""A Cell of Python code in a Jupyter notebook.
 
@@ -30,7 +37,9 @@ class CodeCell:
         ['print("Hello world!")']
     """
     def __init__(self, id, source, execution_count):
-        pass
+        self.id = id
+        self.source = source
+        self.execution_count = execution_count
 
 class MarkdownCell:
     r"""A Cell of Markdown markup in a Jupyter notebook.
@@ -56,7 +65,8 @@ class MarkdownCell:
         ['Hello world!', '============', 'Print `Hello world!`:']
     """
     def __init__(self, id, source):
-        super().__init__(id, source)
+        self.id = id
+        self.source = source
 
 class Notebook:
     r"""A Jupyter Notebook
@@ -92,12 +102,13 @@ class Notebook:
     """
 
     def __init__(self, version, cells):
-        pass
+        self.version = version
+        self.cells = cells
     
     def __iter__(self):
         r"""Iterate the cells of the notebook.
         """
-        pass
+        return iter(self.cells)
 
 class NotebookLoader:
     r"""Loads a Jupyter Notebook from a file
@@ -117,12 +128,24 @@ class NotebookLoader:
             a23ab5ac
     """
     def __init__(self, filename):
-        pass
+        self.filename = filename
 
     def load(self):
         r"""Loads a Notebook instance from the file.
         """
-        pass
+        a = open(self.filename)
+        b = a.read() 
+        dict = json.loads(b)
+        cells = []
+        for cell in dict['cells']:
+            # On va utiliser les classes du notebook précédent pour récupérer les id, source et execution_count
+            if cell['cell_type'] == 'markdown':
+                cells.append(MarkdownCell(MarkdownCellv1(cell).id, MarkdownCellv1(cell).source))
+            else:
+                cells.append(CodeCell(CodeCellv1(cell).id, CodeCellv1(cell).source, CodeCellv1(cell).execution_count))
+        a.close()
+        return Notebook(get_format_version(dict), cells)
+
 
 class Markdownizer:
     r"""Transforms a notebook to a pure markdown notebook.
@@ -147,12 +170,16 @@ class Markdownizer:
     """
 
     def __init__(self, notebook):
-        pass
+        self.notebook = notebook
 
     def markdownize(self):
         r"""Transforms the notebook to a pure markdown notebook.
         """
-        pass
+        for i in range(len(self.notebook.cells)):
+            if isinstance(self.notebook.cells[i], CodeCell):
+                cell = self.notebook.cells[i]
+                self.notebook.cells[i] = MarkdownCell(cell.id, cell.source)
+        return self.notebook
 
 class MarkdownLesser:
     r"""Removes markdown cells from a notebook.
@@ -170,7 +197,7 @@ class MarkdownLesser:
                 | print("Hello world!")
     """
     def __init__(self, notebook):
-        pass
+        self.notebook = notebook
 
     def remove_markdown_cells(self):
         r"""Removes markdown cells from the notebook.
@@ -178,7 +205,12 @@ class MarkdownLesser:
         Returns:
             Notebook: a Notebook instance with only code cells
         """
-        pass
+        version = self.notebook.version
+        cells = []
+        for cell in self.notebook.cells:
+            if isinstance(cell, CodeCell):
+                cells.append(cell)
+        return Notebook(version, cells)
 
 class PyPercentLoader:
     r"""Loads a Jupyter Notebook from a py-percent file.
@@ -204,9 +236,16 @@ class PyPercentLoader:
     """
 
     def __init__(self, filename, version="4.5"):
-        pass
+        self.filename = filename
+        self.version = version
 
     def load(self):
         r"""Loads a Notebook instance from the py-percent file.
         """
-        pass
+        a = open(self.filename)
+        b = a.read()
+        version = self.version
+        cells = []
+
+        return Notebook(version, cells)
+

@@ -169,16 +169,16 @@ class PyPercentSerializer:
         str = ''
         for cell in self.notebook:
             if isinstance(cell, MarkdownCell):
-                str += "# %% [markdown] \n"
+                str += "# %% [markdown]\n"
                 for line in cell.source:
                     str += "# " + line
-                str += "\n"
+                str += "\n\n"
             else:
-                str += "# %% \n"
+                str += "# %%\n"
                 for line in cell.source:
                     str += line
-                str += "\n"
-        return str[:-1] # On retire le dernier saut de ligne
+                str += "\n\n"
+        return str[:-2] # On retire le dernier saut de ligne
 
     def to_file(self, filename):
         r"""Serializes the notebook to a file
@@ -243,9 +243,11 @@ class Serializer:
         dico['cells'] = []
         for cell in self.notebook:
             if isinstance(cell, MarkdownCell):
-                dico['cells'].append({'cell_type': 'markdown', 'id': cell.id, 'metadata': {}, 'source': cell.source})
+                dico['cells'].append(
+                    {'cell_type': cell.type, 'id': cell.id, 'metadata': {}, 'source': cell.source})
             else:
-                dico['cells'].append({'cell_type': 'code', 'execution_count': cell.execution_count, 'id': cell.id, 'metadata': {}, 'outputs': [], 'source': cell.source})
+                dico['cells'].append({'cell_type': cell.type, 'execution_count': cell.execution_count, 
+                                     'id': cell.id, 'metadata': {}, 'outputs': [], 'source': cell.source})
         dico['metadata'] = {}
         dico['nbformat'] = int(self.notebook.version[0])
         dico['nbformat_minor'] = int(self.notebook.version[-1])
@@ -325,7 +327,3 @@ class Outliner:
                 else:
                     str += '    │  ' + cell['source'][0] + '\n'
         return str[:-1] # On retire le dernier saut de ligne
-
-nb = Notebook.from_file("samples/hello-world.ipynb")
-ppp = PyPercentSerializer(nb)
-print(ppp.to_py_percent())

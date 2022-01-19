@@ -193,7 +193,7 @@ def to_percent(ipynb):
             for line in cell['source'] :
                 str += line
             str += '\n\n'
-    return str # On enlève le dernier saut de ligne pour respecter la mise en forme
+    return str[:-1] # On enlève le dernier saut de ligne pour respecter la mise en forme
 
 
 def starboard_html(code):
@@ -250,22 +250,41 @@ def to_starboard(ipynb, html=False):
         ...     with open(notebook_file.with_suffix(".html"), "w", encoding="utf-8") as output:
         ...         print(starboard_html, file=output)
     """
-    if html:
-        return starboard_html(ipynb)
-    else:
-        str = ''
-        for cells in ipynb['cells'] :
-            if cells["cell_type"] == 'markdown' :
-                str += '# %% [markdown] \n'
-                for line in cells['source'] :
+    str = ''
+    for cell in ipynb['cells'] :
+            if cell["cell_type"] == 'markdown' :
+                str += '# %% [markdown]\n'
+                for line in cell['source'] :
                     str += line
-                #str += '\n'
+                str += '\n'
             else :
-                str += '# %% [python] \n'
-                for line in cells['source'] :
+                str += '# %% [python]\n'
+                for line in cell['source'] :
                     str += line
-                #str +='\n'
-        return str[:-1]
+                str += '\n'
+    str = str[:-1] # On enlève le dernier passage à la ligne
+    if html:
+        return f'''
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Starboard Notebook</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="icon" href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/favicon.ico">
+        <link href="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.css" rel="stylesheet">
+    </head>
+    <body>
+        <script>
+            window.initialNotebookContent = {str!r}
+            window.starboardArtifactsUrl = `https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/`;
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/starboard-notebook@0.15.2/dist/starboard-notebook.js"></script>
+    </body>
+</html>
+'''
+    else:
+        return str
 
 
 # Outputs
@@ -415,6 +434,3 @@ def get_images(ipynb):
                         image = PIL.Image.open(io.BytesIO(decoded))
                         list.append(np.asarray(image))
     return  list
-
-ipynb = load_ipynb("samples/hello-world.ipynb")
-print(to_percent(ipynb))

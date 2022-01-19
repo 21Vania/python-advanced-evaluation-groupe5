@@ -193,8 +193,7 @@ def to_percent(ipynb):
             for line in cell['source'] :
                 str += line
             str += '\n\n'
-    str = str[:-1] # On enlève le dernier saut de ligne pour respecter la mise en forme
-    return str
+    return str # On enlève le dernier saut de ligne pour respecter la mise en forme
 
 
 def starboard_html(code):
@@ -260,13 +259,13 @@ def to_starboard(ipynb, html=False):
                 str += '# %% [markdown] \n'
                 for line in cells['source'] :
                     str += line
-                str += '\n\n'
+                #str += '\n'
             else :
                 str += '# %% [python] \n'
                 for line in cells['source'] :
                     str += line
-                str +='\n\n'
-        return str
+                #str +='\n'
+        return str[:-1]
 
 
 # Outputs
@@ -416,3 +415,6 @@ def get_images(ipynb):
                         image = PIL.Image.open(io.BytesIO(decoded))
                         list.append(np.asarray(image))
     return  list
+
+ipynb = load_ipynb("samples/hello-world.ipynb")
+print(to_percent(ipynb))
